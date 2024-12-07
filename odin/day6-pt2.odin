@@ -120,11 +120,7 @@ simulate_timeline :: proc(ascii_map: []string, limit: int) -> bool {
 	guard, guard_found := find_guard(ascii_map)
 	assert(guard_found)
 
-	positions := make(map[Vec2]bool)
-	defer delete(positions)
-
 	facing: Direction
-	positions[guard] = true
 
 	counter := 0
 	for ; guard.x >= 0 && guard.y >= 0 && guard.x < n && guard.y < m; counter += 1 {
@@ -133,7 +129,7 @@ simulate_timeline :: proc(ascii_map: []string, limit: int) -> bool {
 			return false
 		}
 
-		guard, facing = step(guard, facing, ascii_map, &positions)
+		guard, facing = step(guard, facing, ascii_map)
 	}
 
 	// fmt.println("escaped after", counter, "iterations")
@@ -152,15 +148,7 @@ find_guard :: proc(m: []string) -> (Vec2, bool) {
 	return Vec2{}, false
 }
 
-step :: proc(
-	pos: Vec2,
-	facing: Direction,
-	m: []string,
-	positions: ^map[Vec2]bool,
-) -> (
-	p: Vec2,
-	d: Direction,
-) {
+step :: proc(pos: Vec2, facing: Direction, m: []string) -> (p: Vec2, d: Direction) {
 	p = pos
 	d = facing
 
@@ -189,10 +177,8 @@ step :: proc(
 			}
 
 			// fmt.println("  turn", d)
-			return step(pos, d, m, positions)
+			return step(pos, d, m)
 		}
-
-		positions[p] = true
 	}
 
 	return
